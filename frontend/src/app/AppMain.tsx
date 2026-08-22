@@ -105,7 +105,28 @@ export default function App() {
   };
 
   // Switch persona
-  const handleSwitchUser = (userKey: string) => {
+  const handleSwitchUser = async (userKey: string) => {
+    const email = userKey === 'admin' ? 'admin@dayflow.internal' : 'arjun.desai@dayflow.internal';
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', 'demopassword123');
+
+      const res = await fetch('http://localhost:8000/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('auth_token', data.access_token);
+        localStorage.setItem('auth_email', email);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
     if (userKey === 'admin') {
       setCurrentUser({
         name: 'Sarah Jenkins',
@@ -125,6 +146,8 @@ export default function App() {
       setSelectedEmployee(arjun);
       addToast('info', 'Switched Persona', 'Switched to Arjun Desai (Senior Software Engineer).');
     }
+
+    fetchLeaves();
   };
 
   // Save Salary Structure
@@ -181,8 +204,19 @@ export default function App() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_email');
+    setAppMode('auth');
+  };
+
   useEffect(() => {
-    fetchLeaves();
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      setAppMode('auth');
+    } else {
+      fetchLeaves();
+    }
   }, []);
 
   // Leave Management
@@ -355,7 +389,7 @@ export default function App() {
           <DayflowTopNav
             isCheckedIn={isCheckedIn}
             onToggleCheckIn={handleToggleCheckIn}
-            onLogout={() => setAppMode('auth')}
+            onLogout={handleLogout}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             currentUser={currentUser}
@@ -543,7 +577,7 @@ export default function App() {
               setAppMode('dayflow');
               addToast('info', 'Switched Workspace', 'Entered Dayflow HRMS.');
             }}
-            onSignOut={() => setAppMode('auth')}
+            onSignOut={handleLogout}
           />
 
           {/* Nexus Main Area */}
@@ -554,7 +588,7 @@ export default function App() {
               onNewTaskClick={() => setIsNewTaskOpen(true)}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
-              onSignOut={() => setAppMode('auth')}
+              onSignOut={handleLogout}
             />
 
             <main className="p-6 md:p-10 flex-1 overflow-y-auto">
