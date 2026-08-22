@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DayflowSideNav, DayflowTab } from '@/components/layout/DayflowSideNav';
 import { DayflowTopNav } from '@/components/layout/DayflowTopNav';
 import { NexusSideNav, NexusTab } from '@/components/layout/NexusSideNav';
@@ -156,30 +156,86 @@ export default function App() {
     addToast('success', 'Employee Created', `${newEmp.name} has been enrolled into Dayflow HRMS.`);
   };
 
+  const fetchLeaves = async () => {
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/leaves/requests');
+      if (res.ok) {
+        const data = await res.json();
+        setLeaveRequests(data);
+      }
+    } catch (err) {
+      console.error('Error fetching leaves:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeaves();
+  }, []);
+
   // Leave Management
-  const handleApplyLeave = (reqData: Omit<LeaveRequest, 'id' | 'status' | 'appliedTime'>) => {
-    const newReq: LeaveRequest = {
-      ...reqData,
-      id: `leave-${Date.now()}`,
-      status: 'Pending',
-      appliedTime: 'Just now',
-    };
-    setLeaveRequests((prev) => [newReq, ...prev]);
-    addToast('info', 'Leave Application Submitted', 'Your request has been routed to reporting manager.');
+  const handleApplyLeave = async (reqData: any) => {
+    try {
+      const employeeId = currentUser.name === 'Arjun Desai' ? 'emp-1' : 'emp-2';
+      const payload = {
+        employee_id: employeeId,
+        leave_type: reqData.leaveType,
+        start_date: reqData.startDate,
+        end_date: reqData.endDate,
+        reason: reqData.reason || 'Personal leave'
+      };
+
+      const res = await fetch('http://localhost:8000/api/v1/leaves/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        fetchLeaves();
+        addToast('info', 'Leave Application Submitted', 'Your request has been routed to reporting manager.');
+      } else {
+        const errData = await res.json();
+        const msg = errData.detail || 'Could not submit leave request.';
+        addToast('error', 'Application Failed', msg);
+      }
+    } catch (err) {
+      console.error(err);
+      addToast('error', 'Network Error', 'Could not connect to the server.');
+    }
   };
 
-  const handleApproveLeave = (id: string) => {
-    setLeaveRequests((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, status: 'Approved' } : l))
-    );
-    addToast('success', 'Leave Approved', 'The leave request status is now marked Approved.');
+  const handleApproveLeave = async (id: string | number) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/v1/leaves/${id}/approve`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        fetchLeaves();
+        addToast('success', 'Leave Approved', 'The leave request status is now marked Approved.');
+      } else {
+        addToast('error', 'Action Failed', 'Could not approve leave request.');
+      }
+    } catch (err) {
+      console.error(err);
+      addToast('error', 'Network Error', 'Could not connect to the server.');
+    }
   };
 
-  const handleRejectLeave = (id: string) => {
-    setLeaveRequests((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, status: 'Rejected' } : l))
-    );
-    addToast('warning', 'Leave Rejected', 'The leave request has been declined.');
+  const handleRejectLeave = async (id: string | number) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/v1/leaves/${id}/reject`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        fetchLeaves();
+        addToast('warning', 'Leave Rejected', 'The leave request has been declined.');
+      } else {
+        addToast('error', 'Action Failed', 'Could not reject leave request.');
+      }
+    } catch (err) {
+      console.error(err);
+      addToast('error', 'Network Error', 'Could not connect to the server.');
+    }
   };
 
   // Mark Attendance
