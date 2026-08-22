@@ -1,1 +1,4 @@
-# ProHRMS feature: meetings - models.py
+from sqlmodel import SQLModel, Field
+from typing import Optional
+
+# FastAPI SQLModel definitions for meetings

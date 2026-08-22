@@ -1,1 +1,4 @@
-# ProHRMS feature: attendance - models.py
+from sqlmodel import SQLModel, Field
+from typing import Optional
+
+# FastAPI SQLModel definitions for attendance

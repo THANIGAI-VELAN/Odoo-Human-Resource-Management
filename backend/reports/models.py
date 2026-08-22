@@ -1,4 +1,4 @@
 from sqlmodel import SQLModel, Field
 from typing import Optional
 
-# FastAPI SQLModel definitions for shifts
+# FastAPI SQLModel definitions for reports
