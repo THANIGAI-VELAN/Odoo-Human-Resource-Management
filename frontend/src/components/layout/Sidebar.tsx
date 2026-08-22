@@ -25,7 +25,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="flex flex-col w-64 bg-gray-900 border-r border-gray-800 text-white h-screen fixed left-0 top-0">
+    <div className="hidden md:flex flex-col w-64 bg-gray-900 border-r border-gray-800 text-white h-screen fixed left-0 top-0">
       {/* Brand Header */}
       <div className="flex items-center gap-3 px-6 h-16 border-b border-gray-800 bg-gray-950">
         <Building className="h-6 w-6 text-indigo-400" />

@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sidebar />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col pl-64">
+      <div className="flex-1 flex flex-col md:pl-64 pl-0">
         {/* Top Header */}
         <header className="h-16 border-b border-gray-250 bg-white flex items-center justify-between px-8 sticky top-0 z-10">
           <div className="flex items-center gap-2">
