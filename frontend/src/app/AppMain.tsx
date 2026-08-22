@@ -35,7 +35,7 @@ import { Employee, ProjectItem, ActivityItem, LeaveRequest } from '@/types/hrms'
 export default function App() {
   // App Mode: 'dayflow' | 'nexus' | 'auth'
   const [appMode, setAppMode] = useState<'dayflow' | 'nexus' | 'auth'>('dayflow');
-  const [dayflowTab, setDayflowTab] = useState<DayflowTab>('dashboard');
+  const [dayflowTab, setDayflowTab] = useState<DayflowTab>('directory');
   const [nexusTab, setNexusTab] = useState<NexusTab>('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -408,118 +408,56 @@ export default function App() {
             isCheckedIn={isCheckedIn}
             onToggleCheckIn={handleToggleCheckIn}
             onLogout={handleLogout}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
             currentUser={currentUser}
+            currentTab={dayflowTab}
+            onTabChange={setDayflowTab}
             onSwitchUser={handleSwitchUser}
             onOpenNotifications={() => setIsNewLeaveOpen(true)}
             notificationCount={leaveRequests.filter((l) => l.status === 'Pending').length}
-            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           />
 
-          <div className="flex flex-1 pt-14">
-            {/* Side Navigation */}
-            <DayflowSideNav
-              currentTab={dayflowTab}
-              onTabChange={(tab) => {
-                setDayflowTab(tab);
-                setSidebarOpen(false);
-              }}
-              onSwitchToNexus={() => {
-                setAppMode('nexus');
-                addToast('info', 'Switched Workspace', 'Entered Project Alpha / Nexus Workspace.');
-              }}
-              isOpen={sidebarOpen}
-              onClose={() => setSidebarOpen(false)}
-            />
+          {/* Main Content Area — no sidebar */}
+          <main className="flex-1 pt-14 px-4 sm:px-6 lg:px-8 py-6 overflow-y-auto">
+            {dayflowTab === 'directory' && (
+              <EmployeeDirectory
+                employees={employees}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSelectEmployee={(emp) => {
+                  setSelectedEmployee(emp);
+                  setDayflowTab('profile_salary');
+                }}
+                onOpenNewEmployeeModal={() => setIsNewEmployeeOpen(true)}
+                onMessageEmployee={(emp) => setMessageTargetEmployee(emp)}
+              />
+            )}
 
-            {/* Main Content Area */}
-            <main className="flex-grow p-4 sm:p-6 lg:p-8 overflow-y-auto">
-              {dayflowTab === 'dashboard' && (
-                <DayflowDashboard
-                  totalEmployees={employees.length + 1240}
-                  activeCount={employees.filter((e) => e.status === 'present').length + 978}
-                  pendingLeavesCount={leaveRequests.filter((l) => l.status === 'Pending').length}
-                  activities={dayflowActivities}
-                  onReviewLeaves={() => setIsNewLeaveOpen(true)}
-                  onViewDirectory={() => setDayflowTab('directory')}
-                  onViewActivityLog={() => setDayflowTab('attendance')}
-                />
-              )}
+            {(dayflowTab === 'profile_salary' || dayflowTab === 'payroll') && (
+              <EmployeeProfileSalary
+                employee={selectedEmployee}
+                isAdminMode={isAdminMode}
+                onToggleAdminMode={() => {
+                  const next = !isAdminMode;
+                  setIsAdminMode(next);
+                  addToast(next ? 'warning' : 'info', next ? 'Admin Mode Activated' : 'Exited Admin Mode');
+                }}
+                onBackToDirectory={() => setDayflowTab('directory')}
+                onSaveSalary={handleSaveSalary}
+                onUpdateEmployee={handleUpdateEmployee}
+              />
+            )}
 
-              {dayflowTab === 'directory' && (
-                <EmployeeDirectory
-                  employees={employees}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  onSelectEmployee={(emp) => {
-                    setSelectedEmployee(emp);
-                    setDayflowTab('profile_salary');
-                  }}
-                  onOpenNewEmployeeModal={() => setIsNewEmployeeOpen(true)}
-                  onMessageEmployee={(emp) => setMessageTargetEmployee(emp)}
-                />
-              )}
+            {dayflowTab === 'attendance' && (
+              <AttendanceView
+                employees={employees}
+                onMarkAttendance={handleMarkAttendance}
+              />
+            )}
 
-              {(dayflowTab === 'profile_salary' || dayflowTab === 'payroll') && (
-                <EmployeeProfileSalary
-                  employee={selectedEmployee}
-                  isAdminMode={isAdminMode}
-                  onToggleAdminMode={() => {
-                    const next = !isAdminMode;
-                    setIsAdminMode(next);
-                    addToast(next ? 'warning' : 'info', next ? 'Admin Mode Activated' : 'Exited Admin Mode');
-                  }}
-                  onBackToDirectory={() => setDayflowTab('directory')}
-                  onSaveSalary={handleSaveSalary}
-                  onUpdateEmployee={handleUpdateEmployee}
-                />
-              )}
-
-              {dayflowTab === 'attendance' && (
-                <AttendanceView
-                  employees={employees}
-                  onMarkAttendance={handleMarkAttendance}
-                />
-              )}
-
-              {dayflowTab === 'leave' && (
-                <TimeOffView />
-              )}
-
-              {dayflowTab === 'settings' && (
-                <div className="max-w-[1440px] mx-auto space-y-6">
-                  <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-[#191b22]">System Settings & Compliance</h1>
-                    <p className="text-sm text-[#434653] mt-1">Configure payroll cycles, biometric integration, and role policies.</p>
-                  </div>
-                  <div className="p-6 bg-white border border-[#E5E7EB] rounded-xl space-y-4 max-w-2xl">
-                    <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
-                      <div>
-                        <p className="text-sm font-bold text-[#191b22]">Payroll Auto-Computation</p>
-                        <p className="text-xs text-[#737784]">Automatically calculate statutory deductions on 1st of every month</p>
-                      </div>
-                      <input type="checkbox" defaultChecked className="w-5 h-5 text-[#003c90] rounded" />
-                    </div>
-                    <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
-                      <div>
-                        <p className="text-sm font-bold text-[#191b22]">Biometric Device Sync</p>
-                        <p className="text-xs text-[#737784]">Real-time punch sync with Office HQ hardware gateways</p>
-                      </div>
-                      <input type="checkbox" defaultChecked className="w-5 h-5 text-[#003c90] rounded" />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-bold text-[#191b22]">Audit Trail Logging</p>
-                        <p className="text-xs text-[#737784]">Log all compensation formula edits and admin actions</p>
-                      </div>
-                      <span className="px-2.5 py-1 bg-[#22C55E]/15 text-[#16a34a] text-xs font-bold rounded">Enforced</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </main>
-          </div>
+            {dayflowTab === 'leave' && (
+              <TimeOffView />
+            )}
+          </main>
         </div>
       ) : (
         /* Mode 2: Nexus Workspace (Project Alpha) */
