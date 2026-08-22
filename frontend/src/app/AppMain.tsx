@@ -138,6 +138,7 @@ export default function App() {
         avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDSczSVfxDdBfTHgoprUThz6wpjH1wjUV3-vDp2Ap9TdCeXCqoNtPzwCfJ3wj1bJ7xQbFSRcITH4nmeu6e-9YSneuY7JAkGbF2RDKgNjzBtoCyHfuUb_J1JHOeadz5IKzwWWhSWsIW63nlbQOA0CmlUANB2GqS1TxxWOkcDQPIT4xmAnUZjZWzqb2VeFWAgm0YJhx_TqwLzPGOX5pf4LSG3BMpwG_AV-kHaH8c_3ob24IAddmWDbQHJ',
       });
       setIsAdminMode(true);
+      setDayflowTab('directory');
       addToast('info', 'Switched Persona', 'Switched to HR Director (Super Admin Mode).');
     } else {
       const arjun = employees.find((e) => e.name === 'Arjun Desai') || employees[0];
@@ -148,6 +149,7 @@ export default function App() {
       });
       setIsAdminMode(false);
       setSelectedEmployee(arjun);
+      setDayflowTab('profile_salary');
       addToast('info', 'Switched Persona', 'Switched to Arjun Desai (Senior Software Engineer).');
     }
 
@@ -335,12 +337,15 @@ export default function App() {
       <div className="min-h-screen bg-[#faf8ff]">
         <SignInView
           onSignInSuccess={(role, userKey, loginId, email) => {
+            const isAdmin = role === 'super_admin' || role === 'hr_admin';
+            setIsAdminMode(isAdmin);
+
             if (loginId) {
               const matchedEmp = employees.find(e => e.id === loginId || e.email === email);
               if (matchedEmp) {
                 setCurrentUser({
                   name: matchedEmp.name,
-                  role: role === 'super_admin' ? 'HR Director (Admin)' : matchedEmp.role,
+                  role: isAdmin ? 'HR Director (Admin)' : matchedEmp.role,
                   avatar: matchedEmp.avatar,
                 });
                 setSelectedEmployee(matchedEmp);
@@ -348,6 +353,9 @@ export default function App() {
             } else {
               handleSwitchUser(userKey);
             }
+
+            // Admin → Employee Directory, Employee → My Profile
+            setDayflowTab(isAdmin ? 'directory' : 'profile_salary');
             setAppMode('dayflow');
             addToast('success', 'Welcome Back', 'Successfully signed in.');
           }}
@@ -411,6 +419,7 @@ export default function App() {
             currentUser={currentUser}
             currentTab={dayflowTab}
             onTabChange={setDayflowTab}
+            isAdmin={isAdminMode}
             onSwitchUser={handleSwitchUser}
             onOpenNotifications={() => setIsNewLeaveOpen(true)}
             notificationCount={leaveRequests.filter((l) => l.status === 'Pending').length}
