@@ -156,9 +156,22 @@ export default function App() {
     addToast('success', 'Employee Created', `${newEmp.name} has been enrolled into Dayflow HRMS.`);
   };
 
+  const getAuthHeaders = (extra: Record<string, string> = {}) => {
+    const headers: Record<string, string> = { ...extra };
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+    return headers;
+  };
+
   const fetchLeaves = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/leaves/requests');
+      const res = await fetch('http://localhost:8000/api/v1/leaves/requests', {
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         const data = await res.json();
         setLeaveRequests(data);
@@ -186,7 +199,7 @@ export default function App() {
 
       const res = await fetch('http://localhost:8000/api/v1/leaves/apply', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload)
       });
 
@@ -208,6 +221,7 @@ export default function App() {
     try {
       const res = await fetch(`http://localhost:8000/api/v1/leaves/${id}/approve`, {
         method: 'POST',
+        headers: getAuthHeaders()
       });
       if (res.ok) {
         fetchLeaves();
@@ -225,6 +239,7 @@ export default function App() {
     try {
       const res = await fetch(`http://localhost:8000/api/v1/leaves/${id}/reject`, {
         method: 'POST',
+        headers: getAuthHeaders()
       });
       if (res.ok) {
         fetchLeaves();

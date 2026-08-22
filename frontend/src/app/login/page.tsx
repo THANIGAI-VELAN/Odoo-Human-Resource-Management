@@ -10,10 +10,35 @@ export default function LoginPage() {
   const [email, setEmail] = useState('admin@prohrms.com');
   const [password, setPassword] = useState('password');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Redirect to dashboard on mock login
-    router.push('/dashboard');
+    setErrorMsg(null);
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password);
+
+      const res = await fetch('http://localhost:8000/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('auth_token', data.access_token);
+        localStorage.setItem('auth_email', email);
+        router.push('/dashboard');
+      } else {
+        const err = await res.json();
+        setErrorMsg(err.detail || 'Incorrect email or password.');
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg('Could not connect to authentication server.');
+    }
   };
 
   return (
@@ -27,6 +52,12 @@ export default function LoginPage() {
           <h2 className="text-2xl font-bold tracking-tight text-gray-900">Sign in to ProHRMS</h2>
           <p className="text-sm text-gray-500">Welcome back! Please enter your details.</p>
         </div>
+
+        {errorMsg && (
+          <div className="p-3 bg-red-50 border border-red-150 rounded text-xs font-semibold text-red-700">
+            {errorMsg}
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">

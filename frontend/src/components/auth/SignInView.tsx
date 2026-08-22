@@ -14,28 +14,77 @@ export const SignInView: React.FC<SignInViewProps> = ({ onSignInSuccess, onCance
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg(null);
 
-    setTimeout(() => {
-      setLoading(false);
-      if (email.includes('admin')) {
-        onSignInSuccess('super_admin', 'admin');
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password === '••••••••' ? 'demopassword123' : password);
+
+      const res = await fetch('http://localhost:8000/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('auth_token', data.access_token);
+        localStorage.setItem('auth_email', email);
+        if (email.includes('admin') || email.includes('sarah')) {
+          onSignInSuccess('super_admin', 'admin');
+        } else {
+          onSignInSuccess('employee', 'arjun');
+        }
       } else {
-        onSignInSuccess('employee', 'arjun');
+        const err = await res.json();
+        setErrorMsg(err.detail || 'Incorrect email or password.');
       }
-    }, 400);
+    } catch (err) {
+      console.error(err);
+      setErrorMsg('Could not connect to authentication server.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleQuickLogin = (role: 'super_admin' | 'hr_admin' | 'employee', userKey: string, demoEmail: string) => {
+  const handleQuickLogin = async (role: 'super_admin' | 'hr_admin' | 'employee', userKey: string, demoEmail: string) => {
     setEmail(demoEmail);
     setPassword('demopassword123');
     setLoading(true);
-    setTimeout(() => {
+    setErrorMsg(null);
+
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', demoEmail);
+      formData.append('password', 'demopassword123');
+
+      const res = await fetch('http://localhost:8000/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('auth_token', data.access_token);
+        localStorage.setItem('auth_email', demoEmail);
+        onSignInSuccess(role, userKey);
+      } else {
+        const err = await res.json();
+        setErrorMsg(err.detail || 'Failed to authenticate quick persona.');
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg('Could not connect to authentication server.');
+    } finally {
       setLoading(false);
-      onSignInSuccess(role, userKey);
-    }, 300);
+    }
   };
 
   return (
@@ -72,6 +121,12 @@ export const SignInView: React.FC<SignInViewProps> = ({ onSignInSuccess, onCance
           <h2 className="text-xl font-bold text-[#191b22]">Sign In</h2>
           <p className="text-xs text-[#434653] mt-1">Access your workforce management portal</p>
         </div>
+
+        {errorMsg && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-150 rounded-xl text-xs font-semibold text-red-700">
+            {errorMsg}
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
