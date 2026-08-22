@@ -1,0 +1,1 @@
+-- Seed SQL: departments.sql

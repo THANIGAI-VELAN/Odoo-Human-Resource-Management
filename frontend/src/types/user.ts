@@ -1,0 +1,1 @@
+// Shared type: user.ts

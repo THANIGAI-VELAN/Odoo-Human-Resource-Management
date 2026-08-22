@@ -1,0 +1,1 @@
+-- Seed SQL: permissions.sql

@@ -1,0 +1,1 @@
+// Shared type: pagination.ts
