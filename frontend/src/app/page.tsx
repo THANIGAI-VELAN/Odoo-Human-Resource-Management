@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import AppMain from './AppMain';
 
 export default function Home() {
-  redirect('/login');
+  return <AppMain />;
 }
