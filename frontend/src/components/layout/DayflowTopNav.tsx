@@ -45,6 +45,16 @@ export const DayflowTopNav: React.FC<DayflowTopNavProps> = ({
       {/* Center: Menu Tabs */}
       <nav className="flex items-center gap-6 md:gap-10 h-full">
         <button
+          onClick={() => onTabChange('home')}
+          className={`h-full px-1 flex items-center text-sm font-semibold transition-all border-b-2 ${
+            currentTab === 'home'
+              ? 'text-[#714B67] border-[#714B67]'
+              : 'text-[#737784] border-transparent hover:text-[#191b22]'
+          }`}
+        >
+          Home
+        </button>
+        <button
           onClick={() => onTabChange(isAdmin ? 'directory' : 'profile_salary')}
           className={`h-full px-1 flex items-center text-sm font-semibold transition-all border-b-2 ${
             currentTab === 'directory' || currentTab === 'profile_salary'

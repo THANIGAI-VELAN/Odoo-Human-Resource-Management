@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 
 interface SignInViewProps {
-  onSignInSuccess: (role: 'super_admin' | 'hr_admin' | 'employee', userKey: string, loginId?: string, email?: string) => void;
+  onSignInSuccess: (role: 'super_admin' | 'hr_admin' | 'employee', userKey: string, loginId?: string, email?: string, employeeName?: string) => void;
   onCancel?: () => void;
 }
 
@@ -42,14 +42,16 @@ export const SignInView: React.FC<SignInViewProps> = ({ onSignInSuccess, onCance
 
       if (res.ok) {
         const data = await res.json();
+        const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || email.split('@')[0];
         localStorage.setItem('auth_token', data.access_token);
         localStorage.setItem('auth_email', data.email || email);
         localStorage.setItem('auth_login_id', data.login_id || '');
         localStorage.setItem('auth_role', data.role || 'Employee');
         localStorage.setItem('auth_employee_id', data.employee_id || '');
+        localStorage.setItem('auth_name', fullName);
 
         const mappedRole = (data.role === 'Admin' || data.role === 'HR Super Admin') ? 'super_admin' : 'employee';
-        onSignInSuccess(mappedRole, data.login_id || 'employee', data.login_id, data.email);
+        onSignInSuccess(mappedRole, data.login_id || 'employee', data.login_id, data.email, fullName);
       } else {
         const err = await res.json();
         setErrorMsg(err.detail || 'Incorrect Login ID/email or password.');
@@ -128,13 +130,15 @@ export const SignInView: React.FC<SignInViewProps> = ({ onSignInSuccess, onCance
 
       if (res.ok) {
         const data = await res.json();
+        const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || (userKey === 'admin' ? 'Sarah Jenkins' : 'Arjun Desai');
         localStorage.setItem('auth_token', data.access_token);
         localStorage.setItem('auth_email', data.email || demoEmail);
         localStorage.setItem('auth_login_id', data.login_id || '');
-        localStorage.setItem('auth_role', data.role || 'Employee');
+        localStorage.setItem('auth_role', data.role || (role === 'super_admin' ? 'Admin' : 'Employee'));
         localStorage.setItem('auth_employee_id', data.employee_id || '');
+        localStorage.setItem('auth_name', fullName);
 
-        onSignInSuccess(role, userKey, data.login_id, data.email);
+        onSignInSuccess(role, userKey, data.login_id, data.email, fullName);
       } else {
         const err = await res.json();
         setErrorMsg(err.detail || 'Failed to authenticate quick persona.');

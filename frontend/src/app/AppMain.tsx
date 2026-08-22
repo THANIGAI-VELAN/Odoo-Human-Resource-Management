@@ -132,6 +132,8 @@ export default function App() {
     }
 
     if (userKey === 'admin') {
+      localStorage.setItem('auth_name', 'Sarah Jenkins');
+      localStorage.setItem('auth_role', 'Admin');
       setCurrentUser({
         name: 'Sarah Jenkins',
         role: 'HR Director (Admin)',
@@ -142,6 +144,8 @@ export default function App() {
       addToast('info', 'Switched Persona', 'Switched to HR Director (Super Admin Mode).');
     } else {
       const arjun = employees.find((e) => e.name === 'Arjun Desai') || employees[0];
+      localStorage.setItem('auth_name', arjun.name);
+      localStorage.setItem('auth_role', arjun.role);
       setCurrentUser({
         name: arjun.name,
         role: arjun.role,
@@ -149,7 +153,7 @@ export default function App() {
       });
       setIsAdminMode(false);
       setSelectedEmployee(arjun);
-      setDayflowTab('profile_salary');
+      setDayflowTab('home');
       addToast('info', 'Switched Persona', 'Switched to Arjun Desai (Senior Software Engineer).');
     }
 
@@ -215,15 +219,67 @@ export default function App() {
     localStorage.removeItem('auth_email');
     localStorage.removeItem('auth_role');
     localStorage.removeItem('auth_employee_id');
+    localStorage.removeItem('auth_name');
+    localStorage.removeItem('auth_login_id');
     setAppMode('auth');
   };
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
+    const authName = localStorage.getItem('auth_name');
+    const authRole = localStorage.getItem('auth_role');
+    const authEmail = localStorage.getItem('auth_email');
+    const authLoginId = localStorage.getItem('auth_login_id');
+
     if (!token) {
       setAppMode('auth');
     } else {
       fetchLeaves();
+      if (authName) {
+        const isAdmin = authRole === 'Admin' || authRole === 'HR Super Admin' || authRole === 'super_admin' || authRole === 'hr_admin';
+        setIsAdminMode(isAdmin);
+
+        let matchedEmp = employees.find(
+          (e) => e.email === authEmail || e.employeeCode === authLoginId || e.name === authName
+        );
+
+        if (!matchedEmp && !isAdmin) {
+          matchedEmp = {
+            id: authLoginId || `emp-${Date.now()}`,
+            employeeCode: authLoginId || 'OIEMP20260001',
+            name: authName,
+            role: authRole || 'Software Engineer',
+            designation: `${authRole || 'Software Engineer'} • Dayflow Team`,
+            department: 'Engineering',
+            email: authEmail || 'employee@odoo.internal',
+            phone: '+91 98765 43210',
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authName)}&background=714B67&color=fff&size=128`,
+            status: 'present',
+            checkInTime: '09:00 AM',
+            locationType: 'HQ Office',
+            grossSalary: 50000,
+            joiningDate: '01 Jan 2026',
+            managerName: 'Sarah Jenkins',
+            emergencyContact: 'Family Contact (+91 98765 11111)',
+            leaveBalance: { casual: 10, sick: 7, annual: 15 },
+          };
+          setEmployees((prev) => [matchedEmp!, ...prev]);
+        }
+
+        const avatar = matchedEmp?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(authName)}&background=714B67&color=fff&size=128`;
+
+        setCurrentUser({
+          name: authName,
+          role: isAdmin ? 'HR Director (Admin)' : (matchedEmp?.role || authRole || 'Employee'),
+          avatar: avatar,
+        });
+
+        if (matchedEmp) {
+          setSelectedEmployee(matchedEmp);
+        }
+
+        setDayflowTab(isAdmin ? 'directory' : 'home');
+      }
     }
   }, []);
 
@@ -336,28 +392,52 @@ export default function App() {
     return (
       <div className="min-h-screen bg-[#faf8ff]">
         <SignInView
-          onSignInSuccess={(role, userKey, loginId, email) => {
+          onSignInSuccess={(role, userKey, loginId, email, employeeName) => {
             const isAdmin = role === 'super_admin' || role === 'hr_admin';
             setIsAdminMode(isAdmin);
 
-            if (loginId) {
-              const matchedEmp = employees.find(e => e.id === loginId || e.email === email);
-              if (matchedEmp) {
-                setCurrentUser({
-                  name: matchedEmp.name,
-                  role: isAdmin ? 'HR Director (Admin)' : matchedEmp.role,
-                  avatar: matchedEmp.avatar,
-                });
-                setSelectedEmployee(matchedEmp);
-              }
-            } else {
-              handleSwitchUser(userKey);
+            const displayName = employeeName || localStorage.getItem('auth_name') || email || 'User';
+            let matchedEmp = employees.find(e => e.id === loginId || e.email === email || e.name === displayName);
+
+            if (!matchedEmp && !isAdmin) {
+              matchedEmp = {
+                id: loginId || `emp-${Date.now()}`,
+                employeeCode: loginId || 'OIEMP20260001',
+                name: displayName,
+                role: 'Software Engineer',
+                designation: 'Software Engineer • Product Team',
+                department: 'Engineering',
+                email: email || 'employee@odoo.internal',
+                phone: '+91 98765 43210',
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=714B67&color=fff&size=128`,
+                status: 'present',
+                checkInTime: '09:00 AM',
+                locationType: 'HQ Office',
+                grossSalary: 50000,
+                joiningDate: '01 Jan 2026',
+                managerName: 'Sarah Jenkins',
+                emergencyContact: 'Family Contact (+91 98765 11111)',
+                leaveBalance: { casual: 10, sick: 7, annual: 15 },
+              };
+              setEmployees((prev) => [matchedEmp!, ...prev]);
             }
 
-            // Admin → Employee Directory, Employee → My Profile
-            setDayflowTab(isAdmin ? 'directory' : 'profile_salary');
+            const avatar = matchedEmp?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=714B67&color=fff&size=128`;
+
+            setCurrentUser({
+              name: displayName,
+              role: isAdmin ? 'HR Director (Admin)' : (matchedEmp?.role || 'Employee'),
+              avatar: avatar,
+            });
+
+            if (matchedEmp) {
+              setSelectedEmployee(matchedEmp);
+            }
+
+            // Admin → Employee Directory, Employee → Home (My Profile)
+            setDayflowTab(isAdmin ? 'directory' : 'home');
             setAppMode('dayflow');
-            addToast('success', 'Welcome Back', 'Successfully signed in.');
+            addToast('success', 'Welcome Back', `Signed in as ${displayName}.`);
           }}
           onCancel={() => setAppMode('dayflow')}
         />
@@ -425,48 +505,70 @@ export default function App() {
             notificationCount={leaveRequests.filter((l) => l.status === 'Pending').length}
           />
 
-          {/* Main Content Area — no sidebar */}
-          <main className="flex-1 pt-14 px-4 sm:px-6 lg:px-8 py-6 overflow-y-auto">
-            {dayflowTab === 'directory' && (
-              <EmployeeDirectory
-                employees={employees}
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                onSelectEmployee={(emp) => {
-                  setSelectedEmployee(emp);
-                  setDayflowTab('profile_salary');
-                }}
-                onOpenNewEmployeeModal={() => setIsNewEmployeeOpen(true)}
-                onMessageEmployee={(emp) => setMessageTargetEmployee(emp)}
-              />
-            )}
+          {/* Body with SideNav + Main content */}
+          <div className="flex flex-1 pt-14">
+            <DayflowSideNav
+              currentTab={dayflowTab}
+              onTabChange={setDayflowTab}
+              onSwitchToNexus={() => setAppMode('nexus')}
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
 
-            {(dayflowTab === 'profile_salary' || dayflowTab === 'payroll') && (
-              <EmployeeProfileSalary
-                employee={selectedEmployee}
-                isAdminMode={isAdminMode}
-                onToggleAdminMode={() => {
-                  const next = !isAdminMode;
-                  setIsAdminMode(next);
-                  addToast(next ? 'warning' : 'info', next ? 'Admin Mode Activated' : 'Exited Admin Mode');
-                }}
-                onBackToDirectory={() => setDayflowTab('directory')}
-                onSaveSalary={handleSaveSalary}
-                onUpdateEmployee={handleUpdateEmployee}
-              />
-            )}
+            <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 overflow-y-auto">
+              {(dayflowTab === 'home' || dayflowTab === 'profile_salary' || dayflowTab === 'payroll') && (
+                <EmployeeProfileSalary
+                  employee={selectedEmployee}
+                  isAdminMode={isAdminMode}
+                  onToggleAdminMode={() => {
+                    const next = !isAdminMode;
+                    setIsAdminMode(next);
+                    addToast(next ? 'warning' : 'info', next ? 'Admin Mode Activated' : 'Exited Admin Mode');
+                  }}
+                  onBackToDirectory={() => setDayflowTab('directory')}
+                  onSaveSalary={handleSaveSalary}
+                  onUpdateEmployee={handleUpdateEmployee}
+                />
+              )}
 
-            {dayflowTab === 'attendance' && (
-              <AttendanceView
-                employees={employees}
-                onMarkAttendance={handleMarkAttendance}
-              />
-            )}
+              {dayflowTab === 'dashboard' && (
+                <DayflowDashboard
+                  totalEmployees={employees.length}
+                  activeCount={employees.filter((e) => e.status === 'present').length}
+                  pendingLeavesCount={leaveRequests.filter((l) => l.status === 'Pending').length}
+                  activities={dayflowActivities}
+                  onReviewLeaves={() => setIsNewLeaveOpen(true)}
+                  onViewDirectory={() => setDayflowTab('directory')}
+                  onViewActivityLog={() => setDayflowTab('attendance')}
+                />
+              )}
 
-            {dayflowTab === 'leave' && (
-              <TimeOffView />
-            )}
-          </main>
+              {dayflowTab === 'directory' && (
+                <EmployeeDirectory
+                  employees={employees}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  onSelectEmployee={(emp) => {
+                    setSelectedEmployee(emp);
+                    setDayflowTab('profile_salary');
+                  }}
+                  onOpenNewEmployeeModal={() => setIsNewEmployeeOpen(true)}
+                  onMessageEmployee={(emp) => setMessageTargetEmployee(emp)}
+                />
+              )}
+
+              {dayflowTab === 'attendance' && (
+                <AttendanceView
+                  employees={employees}
+                  onMarkAttendance={handleMarkAttendance}
+                />
+              )}
+
+              {dayflowTab === 'leave' && (
+                <TimeOffView />
+              )}
+            </main>
+          </div>
         </div>
       ) : (
         /* Mode 2: Nexus Workspace (Project Alpha) */

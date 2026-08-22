@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-export type DayflowTab = 'dashboard' | 'directory' | 'profile_salary' | 'attendance' | 'leave' | 'payroll' | 'settings';
+export type DayflowTab = 'home' | 'dashboard' | 'directory' | 'profile_salary' | 'attendance' | 'leave' | 'payroll' | 'settings';
 
 interface DayflowSideNavProps {
   currentTab: DayflowTab;
@@ -49,141 +49,160 @@ export const DayflowSideNav: React.FC<DayflowSideNavProps> = ({
           </div>
         </div>
 
-      {/* Workspace Switcher Banner */}
-      <div className="mb-4 px-2">
-        <button
-          onClick={onSwitchToNexus}
-          className="w-full flex items-center justify-between px-3 py-2 bg-white hover:bg-[#ededf6] border border-[#E5E7EB] rounded-lg text-xs font-semibold text-[#191b22] transition-colors group shadow-2xs"
-          title="Switch to Project Alpha workspace"
-        >
-          <div className="flex items-center gap-2 truncate">
-            <div className="w-5 h-5 rounded bg-[#7a2ad6] text-white flex items-center justify-center text-[11px] font-bold">
-              α
+        {/* Workspace Switcher Banner */}
+        <div className="mb-4 px-2">
+          <button
+            onClick={onSwitchToNexus}
+            className="w-full flex items-center justify-between px-3 py-2 bg-white hover:bg-[#ededf6] border border-[#E5E7EB] rounded-lg text-xs font-semibold text-[#191b22] transition-colors group shadow-2xs"
+            title="Switch to Project Alpha workspace"
+          >
+            <div className="flex items-center gap-2 truncate">
+              <div className="w-5 h-5 rounded bg-[#7a2ad6] text-white flex items-center justify-center text-[11px] font-bold">
+                α
+              </div>
+              <span className="truncate">Nexus Workspace</span>
             </div>
-            <span className="truncate">Nexus Workspace</span>
-          </div>
-          <span className="material-symbols-outlined text-[16px] text-[#737784] group-hover:text-[#7a2ad6] group-hover:translate-x-0.5 transition-all">
-            swap_horiz
-          </span>
-        </button>
-      </div>
+            <span className="material-symbols-outlined text-[16px] text-[#737784] group-hover:text-[#7a2ad6] group-hover:translate-x-0.5 transition-all">
+              swap_horiz
+            </span>
+          </button>
+        </div>
 
-      {/* Main Navigation List */}
-      <ul className="flex flex-col gap-1.5 flex-1 overflow-y-auto">
-        <li>
+        {/* Main Navigation List */}
+        <ul className="flex flex-col gap-1.5 flex-1 overflow-y-auto">
+          <li>
+            <button
+              onClick={() => onTabChange('home')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                currentTab === 'home'
+                  ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
+                  : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'home' ? '1' : '0'}>
+                home
+              </span>
+              <div className="flex items-center justify-between flex-1">
+                <span>Home (My Info)</span>
+                <span className="text-[10px] font-mono bg-[#d9e2ff] text-[#001945] px-1.5 py-0.5 rounded font-bold">Profile</span>
+              </div>
+            </button>
+          </li>
+
+          <li>
+            <button
+              onClick={() => onTabChange('dashboard')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                currentTab === 'dashboard'
+                  ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
+                  : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'dashboard' ? '1' : '0'}>
+                dashboard
+              </span>
+              <span>Dashboard</span>
+            </button>
+          </li>
+
+          <li>
+            <button
+              onClick={() => onTabChange('directory')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                currentTab === 'directory'
+                  ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
+                  : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'directory' ? '1' : '0'}>
+                groups
+              </span>
+              <span>Employee Directory</span>
+            </button>
+          </li>
+
+          <li>
+            <button
+              onClick={() => onTabChange('attendance')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                currentTab === 'attendance'
+                  ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
+                  : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'attendance' ? '1' : '0'}>
+                event_available
+              </span>
+              <span>Attendance</span>
+            </button>
+          </li>
+
+          <li>
+            <button
+              onClick={() => onTabChange('leave')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                currentTab === 'leave'
+                  ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
+                  : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'leave' ? '1' : '0'}>
+                flight_takeoff
+              </span>
+              <div className="flex items-center justify-between flex-1">
+                <span>Leave Management</span>
+                <span className="bg-[#EF4444] text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">2</span>
+              </div>
+            </button>
+          </li>
+
+          <li>
+            <button
+              onClick={() => onTabChange('profile_salary')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                currentTab === 'profile_salary' || currentTab === 'payroll'
+                  ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
+                  : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'profile_salary' || currentTab === 'payroll' ? '1' : '0'}>
+                payments
+              </span>
+              <div className="flex items-center justify-between flex-1">
+                <span>Payroll & Salary</span>
+                <span className="text-[10px] font-mono bg-[#90efef] text-[#006e6e] px-1.5 py-0.5 rounded font-bold">Admin</span>
+              </div>
+            </button>
+          </li>
+        </ul>
+
+        {/* Bottom Actions */}
+        <div className="mt-auto border-t border-[#E5E7EB] pt-4 flex flex-col gap-1">
           <button
-            onClick={() => onTabChange('dashboard')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-              currentTab === 'dashboard'
-                ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
+            onClick={() => onTabChange('settings')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+              currentTab === 'settings'
+                ? 'bg-[#0f52ba] text-white'
                 : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
             }`}
           >
-            <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'dashboard' ? '1' : '0'}>
-              dashboard
-            </span>
-            <span>Dashboard</span>
+            <span className="material-symbols-outlined text-[20px]">settings</span>
+            <span>Settings</span>
           </button>
-        </li>
 
-        <li>
-          <button
-            onClick={() => onTabChange('directory')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-              currentTab === 'directory'
-                ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
-                : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
-            }`}
+          <a
+            href="#support"
+            onClick={(e) => {
+              e.preventDefault();
+              alert('Dayflow HRMS Support Hotline: +1 (800) 555-DAYFLOW or support@dayflow.internal');
+            }}
+            className="flex items-center gap-3 px-3 py-2 text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22] transition-colors rounded-lg text-sm font-medium"
           >
-            <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'directory' ? '1' : '0'}>
-              groups
-            </span>
-            <span>Employee Directory</span>
-          </button>
-        </li>
-
-        <li>
-          <button
-            onClick={() => onTabChange('attendance')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-              currentTab === 'attendance'
-                ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
-                : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'attendance' ? '1' : '0'}>
-              event_available
-            </span>
-            <span>Attendance</span>
-          </button>
-        </li>
-
-        <li>
-          <button
-            onClick={() => onTabChange('leave')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-              currentTab === 'leave'
-                ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
-                : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'leave' ? '1' : '0'}>
-              flight_takeoff
-            </span>
-            <div className="flex items-center justify-between flex-1">
-              <span>Leave Management</span>
-              <span className="bg-[#EF4444] text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">2</span>
-            </div>
-          </button>
-        </li>
-
-        <li>
-          <button
-            onClick={() => onTabChange('profile_salary')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-              currentTab === 'profile_salary' || currentTab === 'payroll'
-                ? 'bg-[#0f52ba] text-white shadow-sm scale-[0.98]'
-                : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[20px]" data-fill={currentTab === 'profile_salary' || currentTab === 'payroll' ? '1' : '0'}>
-              payments
-            </span>
-            <div className="flex items-center justify-between flex-1">
-              <span>Payroll & Salary</span>
-              <span className="text-[10px] font-mono bg-[#90efef] text-[#006e6e] px-1.5 py-0.5 rounded font-bold">Admin</span>
-            </div>
-          </button>
-        </li>
-      </ul>
-
-      {/* Bottom Actions */}
-      <div className="mt-auto border-t border-[#E5E7EB] pt-4 flex flex-col gap-1">
-        <button
-          onClick={() => onTabChange('settings')}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-            currentTab === 'settings'
-              ? 'bg-[#0f52ba] text-white'
-              : 'text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22]'
-          }`}
-        >
-          <span className="material-symbols-outlined text-[20px]">settings</span>
-          <span>Settings</span>
-        </button>
-
-        <a
-          href="#support"
-          onClick={(e) => {
-            e.preventDefault();
-            alert('Dayflow HRMS Support Hotline: +1 (800) 555-DAYFLOW or support@dayflow.internal');
-          }}
-          className="flex items-center gap-3 px-3 py-2 text-[#434653] hover:bg-[#e7e7f1] hover:text-[#191b22] transition-colors rounded-lg text-sm font-medium"
-        >
-          <span className="material-symbols-outlined text-[20px]">help</span>
-          <span>Support</span>
-        </a>
-      </div>
-    </nav>
-  </>
-);
+            <span className="material-symbols-outlined text-[20px]">help</span>
+            <span>Support</span>
+          </a>
+        </div>
+      </nav>
+    </>
+  );
 };
