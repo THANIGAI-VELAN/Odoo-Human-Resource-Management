@@ -32,11 +32,13 @@ def on_startup():
 def read_root():
     return {"message": "Welcome to ProHRMS API", "docs": f"{settings.API_V1_STR}/docs"}
 
-# Feature routers will be mounted here
+# Feature routers
 from authentication.router import router as auth_router
 from employees.router import router as emp_router
 from leave_management.router import router as leave_router
+from attendance.router import router as attendance_router
 
 app.include_router(auth_router, prefix=f"{settings.API_V1_STR}/auth", tags=["authentication"])
 app.include_router(emp_router, prefix=f"{settings.API_V1_STR}/employees", tags=["employees"])
 app.include_router(leave_router, prefix=f"{settings.API_V1_STR}/leaves", tags=["leaves"])
+app.include_router(attendance_router, prefix=f"{settings.API_V1_STR}/attendance", tags=["attendance"])

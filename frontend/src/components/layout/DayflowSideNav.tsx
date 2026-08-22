@@ -9,28 +9,45 @@ interface DayflowSideNavProps {
   onTabChange: (tab: DayflowTab) => void;
   onSwitchToNexus: () => void;
   unreadCount?: number;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export const DayflowSideNav: React.FC<DayflowSideNavProps> = ({
   currentTab,
   onTabChange,
   onSwitchToNexus,
+  isOpen,
+  onClose,
 }) => {
   return (
-    <nav className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col pt-16 pb-4 px-4 z-40 bg-[#f3f3fc] border-r border-[#E5E7EB]">
-      {/* Brand Header */}
-      <div className="flex items-center gap-3 mb-6 px-3">
-        <div className="w-9 h-9 rounded bg-[#003c90] flex items-center justify-center text-white shadow-sm shrink-0">
-          <span className="material-symbols-outlined text-[20px]" data-fill="1">corporate_fare</span>
-        </div>
-        <div className="overflow-hidden">
-          <div className="flex items-center gap-1.5">
-            <h1 className="text-xl font-bold text-[#003c90] tracking-tight">Dayflow</h1>
-            <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 bg-[#d9e2ff] text-[#001945] rounded font-semibold">HRMS</span>
+    <>
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-black/30 z-30 md:hidden"
+        />
+      )}
+
+      <nav
+        className={`fixed md:sticky md:top-14 left-0 top-0 h-full md:h-[calc(100vh-3.5rem)] w-64 shrink-0 flex flex-col pt-16 md:pt-4 pb-4 px-4 z-40 bg-[#f3f3fc] border-r border-[#E5E7EB] transition-transform duration-300 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="flex items-center gap-3 mb-6 px-3">
+          <div className="w-9 h-9 rounded bg-[#003c90] flex items-center justify-center text-white shadow-sm shrink-0">
+            <span className="material-symbols-outlined text-[20px]" data-fill="1">corporate_fare</span>
           </div>
-          <p className="text-[11px] font-medium text-[#434653] uppercase tracking-wider">HR Management</p>
+          <div className="overflow-hidden">
+            <div className="flex items-center gap-1.5">
+              <h1 className="text-xl font-bold text-[#003c90] tracking-tight">Odoo</h1>
+              <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 bg-[#d9e2ff] text-[#001945] rounded font-semibold">India</span>
+            </div>
+            <p className="text-[11px] font-medium text-[#434653] uppercase tracking-wider">HR Management</p>
+          </div>
         </div>
-      </div>
 
       {/* Workspace Switcher Banner */}
       <div className="mb-4 px-2">
@@ -167,5 +184,6 @@ export const DayflowSideNav: React.FC<DayflowSideNavProps> = ({
         </a>
       </div>
     </nav>
-  );
+  </>
+);
 };

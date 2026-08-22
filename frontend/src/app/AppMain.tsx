@@ -10,6 +10,7 @@ import { DayflowDashboard } from '@/components/dashboard/DayflowDashboard';
 import { EmployeeDirectory } from '@/components/employees/EmployeeDirectory';
 import { EmployeeProfileSalary } from '@/components/employees/EmployeeProfileSalary';
 import { AttendanceView } from '@/components/attendance/AttendanceView';
+import { TimeOffView } from '@/components/leave/TimeOffView';
 
 import { NexusDashboard } from '@/components/workspace/NexusDashboard';
 import { NexusProjects } from '@/components/workspace/NexusProjects';
@@ -36,6 +37,7 @@ export default function App() {
   const [appMode, setAppMode] = useState<'dayflow' | 'nexus' | 'auth'>('dayflow');
   const [dayflowTab, setDayflowTab] = useState<DayflowTab>('dashboard');
   const [nexusTab, setNexusTab] = useState<NexusTab>('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Core Data
   const [employees, setEmployees] = useState<Employee[]>(INITIAL_EMPLOYEES);
@@ -106,11 +108,11 @@ export default function App() {
 
   // Switch persona
   const handleSwitchUser = async (userKey: string) => {
-    const email = userKey === 'admin' ? 'admin@dayflow.internal' : 'arjun.desai@dayflow.internal';
+    const email = userKey === 'admin' ? 'sarah.jenkins@odoo.internal' : 'arjun.desai@odoo.internal';
     try {
       const formData = new URLSearchParams();
       formData.append('username', email);
-      formData.append('password', 'demopassword123');
+      formData.append('password', 'password123');
 
       const res = await fetch('http://localhost:8000/api/v1/auth/login', {
         method: 'POST',
@@ -122,6 +124,8 @@ export default function App() {
         const data = await res.json();
         localStorage.setItem('auth_token', data.access_token);
         localStorage.setItem('auth_email', email);
+        localStorage.setItem('auth_role', data.role);
+        localStorage.setItem('auth_employee_id', data.employee_id);
       }
     } catch (err) {
       console.error(err);
@@ -207,6 +211,8 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_email');
+    localStorage.removeItem('auth_role');
+    localStorage.removeItem('auth_employee_id');
     setAppMode('auth');
   };
 
@@ -222,7 +228,7 @@ export default function App() {
   // Leave Management
   const handleApplyLeave = async (reqData: any) => {
     try {
-      const employeeId = currentUser.name === 'Arjun Desai' ? 'emp-1' : 'emp-2';
+      const employeeId = currentUser.name === 'Arjun Desai' ? 'OIARDE20220001' : 'OISAJE20210001';
       const payload = {
         employee_id: employeeId,
         leave_type: reqData.leaveType,
@@ -241,8 +247,8 @@ export default function App() {
         fetchLeaves();
         addToast('info', 'Leave Application Submitted', 'Your request has been routed to reporting manager.');
       } else {
-        const errData = await res.json();
-        const msg = errData.detail || 'Could not submit leave request.';
+        const err = await res.json();
+        const msg = err.detail || 'Could not submit leave request.';
         addToast('error', 'Application Failed', msg);
       }
     } catch (err) {
@@ -328,10 +334,22 @@ export default function App() {
     return (
       <div className="min-h-screen bg-[#faf8ff]">
         <SignInView
-          onSignInSuccess={(role, userKey) => {
-            handleSwitchUser(userKey);
+          onSignInSuccess={(role, userKey, loginId, email) => {
+            if (loginId) {
+              const matchedEmp = employees.find(e => e.id === loginId || e.email === email);
+              if (matchedEmp) {
+                setCurrentUser({
+                  name: matchedEmp.name,
+                  role: role === 'super_admin' ? 'HR Director (Admin)' : matchedEmp.role,
+                  avatar: matchedEmp.avatar,
+                });
+                setSelectedEmployee(matchedEmp);
+              }
+            } else {
+              handleSwitchUser(userKey);
+            }
             setAppMode('dayflow');
-            addToast('success', 'Welcome Back', `Successfully signed in as ${userKey === 'admin' ? 'HR Director' : 'Arjun Desai'}.`);
+            addToast('success', 'Welcome Back', 'Successfully signed in.');
           }}
           onCancel={() => setAppMode('dayflow')}
         />
@@ -396,21 +414,27 @@ export default function App() {
             onSwitchUser={handleSwitchUser}
             onOpenNotifications={() => setIsNewLeaveOpen(true)}
             notificationCount={leaveRequests.filter((l) => l.status === 'Pending').length}
+            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           />
 
           <div className="flex flex-1 pt-14">
             {/* Side Navigation */}
             <DayflowSideNav
               currentTab={dayflowTab}
-              onTabChange={(tab) => setDayflowTab(tab)}
+              onTabChange={(tab) => {
+                setDayflowTab(tab);
+                setSidebarOpen(false);
+              }}
               onSwitchToNexus={() => {
                 setAppMode('nexus');
                 addToast('info', 'Switched Workspace', 'Entered Project Alpha / Nexus Workspace.');
               }}
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
             />
 
             {/* Main Content Area */}
-            <main className="flex-1 md:pl-64 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+            <main className="flex-grow p-4 sm:p-6 lg:p-8 overflow-y-auto">
               {dayflowTab === 'dashboard' && (
                 <DayflowDashboard
                   totalEmployees={employees.length + 1240}
@@ -460,76 +484,7 @@ export default function App() {
               )}
 
               {dayflowTab === 'leave' && (
-                <div className="max-w-[1440px] mx-auto space-y-6">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h1 className="text-2xl sm:text-3xl font-bold text-[#191b22] tracking-tight">Leave Management</h1>
-                      <p className="text-sm text-[#434653] mt-1">Review employee PTO balances and approve pending requests.</p>
-                    </div>
-                    <button
-                      onClick={() => setIsNewLeaveOpen(true)}
-                      className="px-4 py-2 bg-[#003c90] text-white rounded-md text-xs font-bold hover:bg-[#0f52ba]"
-                    >
-                      + Manage / Apply Leave
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="p-6 bg-white border border-[#E5E7EB] rounded-xl shadow-2xs">
-                      <h3 className="text-sm font-bold text-[#434653]">Pending Approvals</h3>
-                      <p className="text-3xl font-bold text-[#F59E0B] mt-2">
-                        {leaveRequests.filter((l) => l.status === 'Pending').length}
-                      </p>
-                    </div>
-                    <div className="p-6 bg-white border border-[#E5E7EB] rounded-xl shadow-2xs">
-                      <h3 className="text-sm font-bold text-[#434653]">Approved This Month</h3>
-                      <p className="text-3xl font-bold text-[#22C55E] mt-2">
-                        {leaveRequests.filter((l) => l.status === 'Approved').length + 18}
-                      </p>
-                    </div>
-                    <div className="p-6 bg-white border border-[#E5E7EB] rounded-xl shadow-2xs">
-                      <h3 className="text-sm font-bold text-[#434653]">Team Utilization</h3>
-                      <p className="text-3xl font-bold text-[#003c90] mt-2">92.4%</p>
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-2xs">
-                    <h3 className="text-base font-bold text-[#191b22] mb-4">Pending Requests Roster</h3>
-                    <div className="divide-y divide-[#E5E7EB]">
-                      {leaveRequests.map((req) => (
-                        <div key={req.id} className="py-3.5 flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3">
-                            <img src={req.employeeAvatar} alt={req.employeeName} className="w-10 h-10 rounded-full object-cover" />
-                            <div>
-                              <p className="text-sm font-bold text-[#191b22]">{req.employeeName}</p>
-                              <p className="text-xs text-[#737784]">{req.leaveType} • {req.startDate} to {req.endDate} ({req.daysCount} days)</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {req.status === 'Pending' ? (
-                              <>
-                                <button
-                                  onClick={() => handleApproveLeave(req.id)}
-                                  className="px-3 py-1 bg-[#22C55E] text-white text-xs font-bold rounded"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => handleRejectLeave(req.id)}
-                                  className="px-3 py-1 bg-[#EF4444] text-white text-xs font-bold rounded"
-                                >
-                                  Reject
-                                </button>
-                              </>
-                            ) : (
-                              <span className="text-xs font-bold text-[#22C55E] bg-[#22C55E]/10 px-2.5 py-1 rounded">{req.status}</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <TimeOffView />
               )}
 
               {dayflowTab === 'settings' && (

@@ -24,6 +24,24 @@ export interface Employee {
     sick: number;
     annual: number;
   };
+  // Extended wireframe fields
+  company?: string;
+  date_of_birth?: string;
+  residing_address?: string;
+  nationality?: string;
+  personal_email?: string;
+  gender?: string;
+  marital_status?: string;
+  bank_account_number?: string;
+  bank_name?: string;
+  ifsc_code?: string;
+  pan_no?: string;
+  uan_no?: string;
+  about?: string;
+  job_love?: string;
+  hobbies?: string;
+  skills?: string;
+  certifications?: string;
 }
 
 export interface ActivityItem {

@@ -16,6 +16,7 @@ interface DayflowTopNavProps {
   onSwitchUser: (userKey: string) => void;
   onOpenNotifications: () => void;
   notificationCount: number;
+  onToggleSidebar?: () => void;
 }
 
 export const DayflowTopNav: React.FC<DayflowTopNavProps> = ({
@@ -28,6 +29,7 @@ export const DayflowTopNav: React.FC<DayflowTopNavProps> = ({
   onSwitchUser,
   onOpenNotifications,
   notificationCount,
+  onToggleSidebar,
 }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [timeStr, setTimeStr] = useState('09:41 AM');
@@ -36,12 +38,19 @@ export const DayflowTopNav: React.FC<DayflowTopNavProps> = ({
     <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-8 h-14 bg-white border-b border-[#E5E7EB]">
       {/* Brand logo & sidebar width spacer */}
       <div className="w-60 shrink-0 flex items-center gap-3">
+        <button
+          onClick={onToggleSidebar}
+          className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-[#f3f3fc] transition-colors"
+          title="Toggle Navigation Menu"
+        >
+          <span className="material-symbols-outlined text-[24px]">menu</span>
+        </button>
         <div className="md:hidden flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-[#003c90] flex items-center justify-center text-white font-bold">D</div>
-          <span className="text-lg font-bold text-[#003c90]">Dayflow</span>
+          <div className="w-8 h-8 rounded bg-[#003c90] flex items-center justify-center text-white font-bold">O</div>
+          <span className="text-lg font-bold text-[#003c90]">Odoo</span>
         </div>
-        <div className="hidden md:flex items-center">
-          <span className="text-xl font-bold text-[#003c90] tracking-tight">Dayflow</span>
+        <div className="hidden md:flex items-center gap-2">
+          <span className="text-xl font-bold text-[#003c90] tracking-tight">Odoo India</span>
         </div>
       </div>
 
