@@ -1,26 +1,26 @@
 'use client';
 
 import React, { useState } from 'react';
-import { DayflowSideNav, DayflowTab } from './components/layout/DayflowSideNav';
-import { DayflowTopNav } from './components/layout/DayflowTopNav';
-import { NexusSideNav, NexusTab } from './components/layout/NexusSideNav';
-import { NexusTopNav } from './components/layout/NexusTopNav';
+import { DayflowSideNav, DayflowTab } from '@/components/layout/DayflowSideNav';
+import { DayflowTopNav } from '@/components/layout/DayflowTopNav';
+import { NexusSideNav, NexusTab } from '@/components/layout/NexusSideNav';
+import { NexusTopNav } from '@/components/layout/NexusTopNav';
 
-import { DayflowDashboard } from './components/dashboard/DayflowDashboard';
-import { EmployeeDirectory } from './components/employees/EmployeeDirectory';
-import { EmployeeProfileSalary } from './components/employees/EmployeeProfileSalary';
-import { AttendanceView } from './components/attendance/AttendanceView';
+import { DayflowDashboard } from '@/components/dashboard/DayflowDashboard';
+import { EmployeeDirectory } from '@/components/employees/EmployeeDirectory';
+import { EmployeeProfileSalary } from '@/components/employees/EmployeeProfileSalary';
+import { AttendanceView } from '@/components/attendance/AttendanceView';
 
-import { NexusDashboard } from './components/workspace/NexusDashboard';
-import { NexusProjects } from './components/workspace/NexusProjects';
-import { SignInView } from './components/auth/SignInView';
+import { NexusDashboard } from '@/components/workspace/NexusDashboard';
+import { NexusProjects } from '@/components/workspace/NexusProjects';
+import { SignInView } from '@/components/auth/SignInView';
 
-import { NewEmployeeModal } from './components/modals/NewEmployeeModal';
-import { NewLeaveModal } from './components/modals/NewLeaveModal';
-import { NewTaskModal } from './components/modals/NewTaskModal';
-import { CreateProjectModal } from './components/modals/CreateProjectModal';
-import { MessageModal } from './components/modals/MessageModal';
-import { ToastContainer, ToastMessage } from './components/common/Toast';
+import { NewEmployeeModal } from '@/components/modals/NewEmployeeModal';
+import { NewLeaveModal } from '@/components/modals/NewLeaveModal';
+import { NewTaskModal } from '@/components/modals/NewTaskModal';
+import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
+import { MessageModal } from '@/components/modals/MessageModal';
+import { ToastContainer, ToastMessage } from '@/components/common/Toast';
 
 import {
   INITIAL_EMPLOYEES,
@@ -28,8 +28,8 @@ import {
   INITIAL_NEXUS_ACTIVITIES,
   INITIAL_PROJECTS,
   INITIAL_LEAVE_REQUESTS,
-} from './data/mockData';
-import { Employee, ProjectItem, ActivityItem, LeaveRequest } from './types/hrms';
+} from '@/data/mockData';
+import { Employee, ProjectItem, ActivityItem, LeaveRequest } from '@/types/hrms';
 
 export default function App() {
   // App Mode: 'dayflow' | 'nexus' | 'auth'

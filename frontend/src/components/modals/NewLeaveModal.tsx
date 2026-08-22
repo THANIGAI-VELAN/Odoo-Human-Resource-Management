@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { LeaveRequest } from '../../types/hrms';
+import { LeaveRequest } from '@/types/hrms';
 
 interface NewLeaveModalProps {
   isOpen: boolean;

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Employee } from '../../types/hrms';
+import { Employee } from '@/types/hrms';
 
 interface MessageModalProps {
   employee: Employee | null;

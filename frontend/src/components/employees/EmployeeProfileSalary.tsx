@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Employee } from '../../types/hrms';
-import { calculateSalaryStructure, formatINR } from '../../utils/salaryCalculator';
+import { Employee } from '@/types/hrms';
+import { calculateSalaryStructure, formatINR } from '@/utils/salaryCalculator';
 
 interface EmployeeProfileSalaryProps {
   employee: Employee;

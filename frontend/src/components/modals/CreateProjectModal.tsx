@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ProjectItem } from '../../types/hrms';
+import { ProjectItem } from '@/types/hrms';
 
 interface CreateProjectModalProps {
   isOpen: boolean;

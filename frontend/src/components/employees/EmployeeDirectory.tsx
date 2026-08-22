@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Employee, AttendanceStatus } from '../../types/hrms';
+import { Employee, AttendanceStatus } from '@/types/hrms';
 
 interface EmployeeDirectoryProps {
   employees: Employee[];

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ActivityItem } from '../../types/hrms';
+import { ActivityItem } from '@/types/hrms';
 
 interface NexusDashboardProps {
   activities: ActivityItem[];
